@@ -22,7 +22,7 @@ dependencies {
     }
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("club.minnced:jda-ktx:0.12.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.json:json:20250517")
     implementation("ch.qos.logback:logback-classic:1.5.6")
 }
 

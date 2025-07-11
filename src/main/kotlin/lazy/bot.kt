@@ -8,7 +8,8 @@ import net.dv8tion.jda.api.events.message.*
 import net.dv8tion.jda.api.hooks.*
 import dev.minn.jda.ktx.util.*
 import dev.minn.jda.ktx.coroutines.*
-
+import org.json.JSONObject
+import java.io.File
 
 // основной код
 // Логи комманд
@@ -19,9 +20,26 @@ object Listener : ListenerAdapter() {
         log.info("[{}] {}: {}", event.channel.name, event.author.asTag, event.message.contentDisplay)
     }
 }
+// получение токена с json файла
+fun getBotToken(): String? {
+    return try {
+        val file = File("src/main/resources/token.json").readText()
+        val json = JSONObject(file)
+        json.getString("bot_token")
+    } catch (e: Exception) {
+        println("${e.message}")
+        null
+    }
+}
 //сам бот
 fun main() {
-    val bot = light("токен нахуй", enableCoroutines=true) {
+    val botToken = getBotToken()
+
+    if (botToken == null) {
+        println("Токен не загружен. Смотрите ошибку выше")
+        return
+    }
+    val bot = light(botToken, enableCoroutines=true) {
         intents += listOf(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
     }
 
@@ -48,12 +66,14 @@ fun main() {
                     title = "Информация о боте"
                     field {
                         name = "Тупо бот созданный для проекта PERIMITR"
+                        description = "написан кстати на котлин"
                         inline = false
                     }
                 color = 0x7b00ff
                     title = "Информация о создателе"
                 field {
                     name = "LazyCat <:lazycaticon:1393325062093934654>"
+                    description = "я хз что сюда написать"
                     inline = false
 
                 }
