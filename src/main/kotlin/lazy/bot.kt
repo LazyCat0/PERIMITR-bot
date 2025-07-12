@@ -8,8 +8,11 @@ import net.dv8tion.jda.api.events.message.*
 import net.dv8tion.jda.api.hooks.*
 import dev.minn.jda.ktx.util.*
 import dev.minn.jda.ktx.coroutines.*
+import dev.minn.jda.ktx.interactions.components.getOption
+import net.dv8tion.jda.api.entities.User
 import org.json.JSONObject
 import java.io.File
+import kotlin.time.Duration.Companion.seconds
 
 // основной код
 // Логи комманд
@@ -46,9 +49,11 @@ fun main() {
 
 
     bot.listener<MessageReceivedEvent> {
+        val guild = it.guild
         val channel = it.channel
         val message = it.message
         val content = message.contentRaw
+        val author = it.author
         if (content.startsWith("p.emojis")) {
             // Send typing indicator and wait for it to arrive
             channel.sendTyping().await()
@@ -59,7 +64,7 @@ fun main() {
             channel.send("<:checkmark:1393326843041419474>").queue()
             channel.send("<:fire:1393326810044956705>").queue()
             channel.send("<:lazycaticon:1393326799106211881>").queue()
-        } //p.emojis
+        }
         if (content.startsWith("p.info")) {
             channel.sendTyping().await()
             channel.sendMessageEmbeds( Embed { // Builds a MessageEmbed
@@ -80,7 +85,7 @@ fun main() {
                 color = 0x7b00ff
             }).queue()
 
-        } //p.info
+        }
         if (content.startsWith("p.workers")) {
             channel.sendTyping().await()
             channel.sendMessageEmbeds( Embed { // Builds a MessageEmbed
@@ -92,16 +97,16 @@ fun main() {
                 color = 0x7b00ff
             }).queue()
 
-        } //p.workers
+        }
         if (content.startsWith("p.help")) {
             // Send typing indicator and wait for it to arrive
             channel.sendTyping().await()
             channel.send("Вот список команд в боте созданном для PERIMITR").queue()
             channel.sendMessageEmbeds( Embed { // Builds a MessageEmbed
                 title = "Список комманд в боте"
-                description = "*ВНИМАНИЕ*: При использовании комманд, не забудьте поставить префикс *.p* ***А ТАКЖЕ НЕ ЗАБЫВАЙТЕ ЧТО КОМАНДЫ*** */* ***В РАЗАРБОТКЕ***"
+                description = "*ВНИМАНИЕ*: При использовании комманд, не забудьте поставить префикс *.p* ***А ТАКЖЕ НЕ ЗАБЫВАЙТЕ ЧТО КОМАНДЫ*** */* ***В РАЗАРБОТКЕ***. Требуется подметить что присуствуют команды что требуют права модератора, они помечены при помощи ***M***. Команды что сейчас в разработке помечены при помощи ***D***"
                 field {
-                    name = "p.emojis"
+                    name = "p.emojis **M**"
                     value = "Показывает все эмодзи бота"
                     inline = false
                 } //p.emojis
@@ -116,12 +121,48 @@ fun main() {
                     inline = false
                 } // p.info
                 field {
-                    name = "p.workers"
+                    name = "p.workers **D**"
                     value = "Список работников проекта и их должности"
                     inline = false
-                } //p.workers
+                } // p.workers
+                field {
+                    name = "p.pingX @(пользователь) **M**"
+                    value = "Отмечает указаного пользователя 10 раз"
+                    inline = false
+                } // p.pingX
                 color = 0x8b00ff
             }).queue()
-        } //p.help
+        }
+        if (content.startsWith("p.pingX")) {
+            // Send typing indicator and wait for it to arrive
+            channel.sendTyping().await()
+            val user = message.mentions.users.firstOrNull() ?: run {
+                val matches = guild.retrieveMembersByPrefix(content.substringAfter("p.pingX "), 1).await()
+                // Take first result, or null
+                matches.firstOrNull()
+            }
+            if (user == null)
+                channel.send("${author.asMention}, user which you try to ping is not found").queue()
+            else
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+                channel.send("${user?.asMention}, you now pinged!").queue()
+        }
+
+    }
+    bot.onCommand("test", 5.seconds) { event ->
+        val user = event.getOption<User>("user")!!
+        event.reply_(
+            "This is testcommand, ${user.asMention}",
+            ephemeral = true
+        ).queue()
+
     }
 }
